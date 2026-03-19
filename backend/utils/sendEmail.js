@@ -1,30 +1,24 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Nodemailer transporter. Uses env vars:
- *   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+ * Sends an email using Resend API (preferred) or Nodemailer SMTP as fallback.
  * 
- * For Gmail: use App Password (not regular password).
- *   SMTP_HOST=smtp.gmail.com
- *   SMTP_PORT=587
- *   SMTP_USER=yourname@gmail.com
- *   SMTP_PASS=xxxx xxxx xxxx xxxx  (App Password)
+ * For production (Render): set RESEND_API_KEY in environment variables.
+ *   Get a free key at https://resend.com (3000 emails/month free)
  * 
- * For Mailtrap (testing):
- *   SMTP_HOST=sandbox.smtp.mailtrap.io
- *   SMTP_PORT=587
- *   SMTP_USER=<mailtrap user>
- *   SMTP_PASS=<mailtrap password>
+ * For local dev: SMTP with Gmail App Password still works fine.
  */
+
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false, // Use STARTTLS
+    secure: false,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    tls: { rejectUnauthorized: false },
   });
 };
 
@@ -33,14 +27,46 @@ const createTransporter = () => {
  * @param {Object} options - { to, subject, html }
  */
 const sendEmail = async ({ to, subject, html }) => {
-  const transporter = createTransporter();
+  const from = `RentMate <${process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@rentmate.app'}>`;
 
-  const mailOptions = {
-    from: `RentMate <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
-    to,
-    subject,
-    html,
-  };
+  // ── Use Resend API if key is present (recommended for cloud hosting) ──────
+  if (process.env.RESEND_API_KEY) {
+    const https = require('https');
+    const body = JSON.stringify({ from: process.env.FROM_EMAIL || 'RentMate <onboarding@resend.dev>', to, subject, html });
+
+    return new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: 'api.resend.com',
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+        },
+      }, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          const parsed = JSON.parse(data);
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log(`✅ Resend email sent to ${to}: ${parsed.id}`);
+            resolve(parsed);
+          } else {
+            console.error(`❌ Resend failed:`, parsed);
+            reject(new Error(parsed.message || 'Resend API error'));
+          }
+        });
+      });
+      req.on('error', reject);
+      req.write(body);
+      req.end();
+    });
+  }
+
+  // ── Fall back to Nodemailer SMTP (works locally) ──────────────────────────
+  const transporter = createTransporter();
+  const mailOptions = { from, to, subject, html };
 
   try {
     const info = await transporter.sendMail(mailOptions);
