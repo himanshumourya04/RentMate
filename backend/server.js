@@ -16,16 +16,30 @@ const server = http.createServer(app);
 // Allowed frontend origins (comma-separated in CLIENT_URL env var)
 const allowedOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(',').map(o => o.trim())
-  : ['http://localhost:5173'];
+  : ['http://localhost:5173', 'http://localhost:5174'];
+
+// Dynamic CORS origin function - accepts any vercel.app domain + explicit origins
+const corsOrigin = (origin, callback) => {
+  // Allow requests with no origin (Postman, mobile apps, curl)
+  if (!origin) return callback(null, true);
+  // Allow any vercel.app subdomain automatically
+  if (origin.endsWith('.vercel.app')) return callback(null, true);
+  // Allow origins explicitly listed in CLIENT_URL
+  if (allowedOrigins.includes(origin)) return callback(null, true);
+  // Block everything else
+  console.warn(`[CORS] Blocked request from: ${origin}`);
+  callback(new Error(`CORS: origin ${origin} is not allowed`));
+};
 
 // Setup Socket.io
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: corsOrigin,
     methods: ['GET', 'POST'],
     credentials: true,
   }
 });
+
 
 // Store connected users: { userId: socketId }
 let connectedUsers = {};
@@ -78,7 +92,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Middleware
 app.use(cors({
-  origin: allowedOrigins,
+  origin: corsOrigin,
   credentials: true,
 }));
 app.use(express.json());
