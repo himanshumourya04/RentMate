@@ -1,0 +1,120 @@
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
+const connectDB = require('./config/db');
+
+dotenv.config();
+connectDB();
+
+const app = express();
+const server = http.createServer(app);
+
+// Allowed frontend origins (comma-separated in CLIENT_URL env var)
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map(o => o.trim())
+  : ['http://localhost:5173'];
+
+// Setup Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  }
+});
+
+// Store connected users: { userId: socketId }
+let connectedUsers = {};
+
+// Socket.io connection handling
+io.on('connection', (socket) => {
+
+  // User registers their connection
+  socket.on('registerUser', (userId) => {
+    connectedUsers[userId] = socket.id;
+  });
+
+  // sendMessage event
+  socket.on('sendMessage', async (messageData) => {
+    const { senderId, receiverId, messageText, conversationId } = messageData;
+
+    try {
+      // Find receiver's socketId
+      const receiverSocketId = connectedUsers[receiverId];
+
+      // Emit to receiver if online
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit('receiveMessage', messageData);
+      }
+
+      // Also emit back to sender (as requested)
+      socket.emit('receiveMessage', messageData);
+      
+    } catch (err) {
+      console.error('Socket sendMessage error:', err);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    // Remove user from connectedUsers mapping
+    for (const userId in connectedUsers) {
+      if (connectedUsers[userId] === socket.id) {
+        delete connectedUsers[userId];
+        break;
+      }
+    }
+  });
+});
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Middleware
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/items', require('./routes/items'));
+app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/verification', require('./routes/verification'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/chat', require('./routes/chat'));
+app.use('/api/requests', require('./routes/requests'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
+
+// Health check
+app.get('/', (req, res) => {
+  res.json({ message: 'RentMate API is running 🚀', status: 'OK' });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: err.message || 'Internal Server Error' });
+});
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`✅ RentMate server running on http://localhost:${PORT}`);
+});

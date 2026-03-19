@@ -1,0 +1,207 @@
+﻿[36mvite v8.0.0 [32mbuilding client environment for production...[36m[39m
+[2K
+node.exe : [33m[vite:
+css][postcss] Nested 
+CSS was detected, but 
+CSS nesting has not 
+been configured 
+correctly.
+At line:1 char:1
++ & "C:\Program Files\
+nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: ([33m[vite   
+ :css]...ured corr    
+ectly.:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+Please enable a CSS 
+nesting plugin 
+*before* Tailwind in 
+your configuration.
+See how here: https://
+tailwindcss.com/docs/u
+sing-with-preprocessor
+s#nesting
+20 |    
+justify-content: 
+center;
+21 |    color: var(--s
+wiper-navigation-color
+, var(--swiper-theme-c
+olor));
+22 |    &.swiper-butto
+n-disabled {
+   |    ^^^^^^^^^^^^^^
+^^^^^^^^^^^^
+23 |      opacity: 
+0.35;
+   |  
+^^^^^^^^^^^^^^^^^^
+24 |      cursor: 
+auto;
+   |  
+^^^^^^^^^^^^^^^^^
+25 |      
+pointer-events: none;
+   |  ^^^^^^^^^^^^^^^^
+^^^^^^^^^
+26 |    }
+   |  ^^^[39m
+[33m[vite:css][postcs
+s] Nested CSS was 
+detected, but CSS 
+nesting has not been 
+configured correctly.
+Please enable a CSS 
+nesting plugin 
+*before* Tailwind in 
+your configuration.
+See how here: https://
+tailwindcss.com/docs/u
+sing-with-preprocessor
+s#nesting
+93 |  .swiper-3d {
+94 |    perspective: 
+1200px;
+95 |    .swiper-slide,
+   |    ^^^^^^^^^^^^^^
+96 |    
+.swiper-cube-shadow {
+   |  ^^^^^^^^^^^^^^^^
+^^^^^^^
+97 |      
+transform-style: 
+preserve-3d;
+   |  ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+98 |    }
+   |  ^^^[39m
+transforming...Γ£ô 196 modules transformed.
+[31mΓ£ù[39m Build 
+failed in 1.84s
+[31merror during 
+build:
+[31mBuild failed 
+with 1 error:
+
+[31m[PARSE_ERROR] 
+Error:[0m 'import 
+statement' 
+declaration can only 
+be used at the top 
+level of a module
+   [38;5;246mΓò¡[0m
+[38;5;246mΓöÇ[0m[38;
+5;246m[[0m src/compon
+ents/chat/MessageBubbl
+e.jsx:7:2 
+[38;5;246m][0m
+   [38;5;246mΓöé[0m
+ [38;5;246m7 Γöé[0m 
+[38;5;249m 
+[0m[38;5;249m 
+[0m[38;5;249m 
+[0m[38;5;249m 
+[0mimport[38;5;249m 
+[0m[38;5;249m{[0m[
+38;5;249m [0m[38;5;2
+49mB[0m[38;5;249mA[
+0m[38;5;249mC[0m[38
+;5;249mK[0m[38;5;249
+mE[0m[38;5;249mN[0m
+[38;5;249mD[0m[38;5
+;249m_[0m[38;5;249mU
+[0m[38;5;249mR[0m[
+38;5;249mL[0m[38;5;2
+49m [0m[38;5;249m}[
+0m[38;5;249m [0m[38
+;5;249mf[0m[38;5;249
+mr[0m[38;5;249mo[0m
+[38;5;249mm[0m[38;5
+;249m [0m[38;5;249m"
+[0m[38;5;249m.[0m[
+38;5;249m.[0m[38;5;2
+49m/[0m[38;5;249m.[
+0m[38;5;249m.[0m[38
+;5;249m/[0m[38;5;249
+mc[0m[38;5;249mo[0m
+[38;5;249mn[0m[38;5
+;249mf[0m[38;5;249mi
+[0m[38;5;249mg[0m[
+38;5;249m"[0m[38;5;2
+49m;[0m
+ [38;5;240m  Γöé[0m 
+    
+ΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇ  
+ [38;5;240m  Γöé[0m 
+       
+Γò░ΓöÇΓöÇΓöÇΓöÇ 
+[38;5;246mΓöÇΓöÇΓöÇΓò
+»[0m
+[31m
+    at aggregateBindin
+gErrorsIntoJsError (fi
+le:///C:/Users/AKASH/.
+gemini/antigravity/scr
+atch/client/node_modul
+es/rolldown/dist/share
+d/error-CP8smW_P.mjs:4
+8:18)
+    at 
+unwrapBindingResult (f
+ile:///C:/Users/AKASH/
+.gemini/antigravity/sc
+ratch/client/node_modu
+les/rolldown/dist/shar
+ed/error-CP8smW_P.mjs:
+18:128)
+    at #build (file://
+/C:/Users/AKASH/.gemin
+i/antigravity/scratch/
+client/node_modules/ro
+lldown/dist/shared/rol
+ldown-build-4YnQkA76.m
+js:3311:34)
+    at async 
+buildEnvironment (file
+:///C:/Users/AKASH/.ge
+mini/antigravity/scrat
+ch/client/node_modules
+/vite/dist/node/chunks
+/node.js:32794:64)
+    at async 
+Object.build (file:///
+C:/Users/AKASH/.gemini
+/antigravity/scratch/c
+lient/node_modules/vit
+e/dist/node/chunks/nod
+e.js:33216:19)
+    at async 
+Object.buildApp (file:
+///C:/Users/AKASH/.gem
+ini/antigravity/scratc
+h/client/node_modules/
+vite/dist/node/chunks/
+node.js:33213:153)
+    at async 
+CAC.<anonymous> (file:
+///C:/Users/AKASH/.gem
+ini/antigravity/scratc
+h/client/node_modules/
+vite/dist/node/cli.js:
+778:3) {
+  errors: 
+[Getter/Setter]
+}[39m

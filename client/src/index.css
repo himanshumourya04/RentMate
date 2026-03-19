@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  body {
+    @apply font-sans bg-slate-50 text-slate-800 min-h-screen;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-white hover:bg-slate-50 text-primary-600 font-medium px-4 py-2 rounded-lg border border-slate-200 transition-all duration-200 shadow-sm;
+  }
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-sm;
+  }
+  .btn-success {
+    @apply bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-sm;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-all duration-200 hover:shadow-md;
+  }
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-slate-800 placeholder-slate-400 transition-all duration-200;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-pending {
+    @apply badge bg-amber-100 text-amber-700;
+  }
+  .badge-active {
+    @apply badge bg-emerald-100 text-emerald-700;
+  }
+  .badge-rejected {
+    @apply badge bg-red-100 text-red-700;
+  }
+  .badge-completed {
+    @apply badge bg-slate-100 text-slate-700;
+  }
+  .section-title {
+    @apply text-2xl font-bold text-slate-800 mb-1;
+  }
+  .section-subtitle {
+    @apply text-slate-500 text-sm mb-6;
+  }
+
+  /* WhatsApp Styles */
+  .pattern-bg {
+    background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+    background-repeat: repeat;
+    background-attachment: fixed;
+    opacity: 0.4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #ced0d1;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #aeb1b2;
+  }
+
+  .select_text {
+    user-select: text;
+  }
+}
