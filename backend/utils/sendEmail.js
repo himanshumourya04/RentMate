@@ -40,13 +40,6 @@ const sendEmail = async ({ to, subject, html }) => {
     to,
     subject,
     html,
-    attachments: [
-      {
-        filename: 'logo.jpg',
-        path: require('path').join(__dirname, '../public/assets/logo.jpg'),
-        cid: 'rentmatelogo' // same cid value as in the html img src
-      }
-    ]
   };
 
   try {
