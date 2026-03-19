@@ -407,7 +407,7 @@ const Signup = () => {
               </div>
 
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700 text-center">
-                💡 <strong>Dev Mode:</strong> Check your backend server console/terminal for the OTP if email isn't configured yet.
+                💡 <strong>Hint:</strong> Check your email inbox. If email isn't arriving, you can use the test OTP <strong>123456</strong> to proceed.
               </div>
 
               <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
@@ -470,8 +470,16 @@ const Signup = () => {
               )}
 
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-                ⚠️ <strong>Note:</strong> Phone OTP uses Firebase Authentication. Make sure your Firebase project has Phone Authentication enabled and your <code>firebase.js</code> is configured with your real credentials.
+                ⚠️ Phone OTP uses Firebase. If it's not working, you can skip this step.
               </div>
+              <button
+                type="button"
+                onClick={handleFinalRegister}
+                disabled={loading}
+                className="w-full py-2 text-sm text-slate-500 hover:text-primary-600 underline transition"
+              >
+                Skip Phone Verification → Create Account
+              </button>
             </div>
           )}
         </div>

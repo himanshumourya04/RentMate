@@ -111,15 +111,14 @@ const sendEmailOtp = async (req, res) => {
     // Always print OTP to console so dev testing works even without SMTP
     console.log(`\n📧 EMAIL OTP for ${email}: ${otp}\n`);
 
-    try {
-      await sendEmail({
+    // Send email in background (fire-and-forget) so API responds instantly
+    setImmediate(() => {
+      sendEmail({
         to: email,
         subject: 'Your RentMate Verification OTP',
         html: otpEmailHtml(otp, name || 'Student'),
-      });
-    } catch (emailErr) {
-      console.warn('Email delivery failed (check SMTP config):', emailErr.message);
-    }
+      }).catch(err => console.warn('Email delivery failed (check SMTP config):', err.message));
+    });
 
     res.json({ message: `OTP sent to ${email}. Check your inbox (or server console in dev mode).` });
   } catch (error) {
@@ -134,9 +133,17 @@ const verifyEmailOtp = async (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(400).json({ message: 'Email and OTP are required' });
 
-    const result = await Otp.verifyOtp(email.toLowerCase(), 'email', otp);
-    if (!result.success) {
-      return res.status(400).json({ message: result.reason });
+    // Test OTP bypass — always works for demo/testing
+    const TEST_OTP = process.env.TEST_OTP || '123456';
+    const isTestOtp = otp === TEST_OTP;
+
+    if (!isTestOtp) {
+      const result = await Otp.verifyOtp(email.toLowerCase(), 'email', otp);
+      if (!result.success) {
+        return res.status(400).json({ message: result.reason });
+      }
+    } else {
+      console.log(`⚠️  Test OTP used for ${email}`);
     }
 
     // Issue a short-lived token — frontend includes it in the final register request
