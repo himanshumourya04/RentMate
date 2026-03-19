@@ -407,7 +407,7 @@ const Signup = () => {
               </div>
 
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700 text-center">
-                💡 <strong>Hint:</strong> Check your email inbox. If email isn't arriving, you can use the test OTP <strong>123456</strong> to proceed.
+                📧 We've sent a 6-digit OTP to your email. Check your inbox (and spam folder).
               </div>
 
               <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
@@ -470,16 +470,8 @@ const Signup = () => {
               )}
 
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-                ⚠️ Phone OTP uses Firebase. If it's not working, you can skip this step.
+                ⚠️ Phone OTP is sent to your registered number. Enter the 6-digit code to complete registration.
               </div>
-              <button
-                type="button"
-                onClick={handleFinalRegister}
-                disabled={loading}
-                className="w-full py-2 text-sm text-slate-500 hover:text-primary-600 underline transition"
-              >
-                Skip Phone Verification → Create Account
-              </button>
             </div>
           )}
         </div>

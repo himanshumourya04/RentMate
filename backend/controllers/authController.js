@@ -133,17 +133,9 @@ const verifyEmailOtp = async (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(400).json({ message: 'Email and OTP are required' });
 
-    // Test OTP bypass — always works for demo/testing
-    const TEST_OTP = process.env.TEST_OTP || '123456';
-    const isTestOtp = otp === TEST_OTP;
-
-    if (!isTestOtp) {
-      const result = await Otp.verifyOtp(email.toLowerCase(), 'email', otp);
-      if (!result.success) {
-        return res.status(400).json({ message: result.reason });
-      }
-    } else {
-      console.log(`⚠️  Test OTP used for ${email}`);
+    const result = await Otp.verifyOtp(email.toLowerCase(), 'email', otp);
+    if (!result.success) {
+      return res.status(400).json({ message: result.reason });
     }
 
     // Issue a short-lived token — frontend includes it in the final register request
