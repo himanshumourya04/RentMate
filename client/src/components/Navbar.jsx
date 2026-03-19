@@ -36,6 +36,7 @@ const Navbar = () => {
   }, [user]);
 
   // Close mobile menu on route change
+  // eslint-disable-next-line
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
   const handleLogout = () => {

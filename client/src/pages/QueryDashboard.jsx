@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getActiveRequests, reportItemRequest, deleteItemRequest, updateItemRequest } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { BACKEND_URL } from '../config';
 
 const QueryDashboard = () => {
   const { user } = useAuth();

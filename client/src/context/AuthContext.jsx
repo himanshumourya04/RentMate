@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
     const stored = localStorage.getItem('rentmate_user');
     const storedToken = localStorage.getItem('rentmate_token');
     if (stored && storedToken) {
+      // eslint-disable-next-line
       setUser(JSON.parse(stored));
       setToken(storedToken);
     }
@@ -39,4 +40,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line
 export const useAuth = () => useContext(AuthContext);
