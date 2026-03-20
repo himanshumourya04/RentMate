@@ -198,12 +198,13 @@ const getAllRequestsAdmin = async (req, res) => {
       .populate('userId', 'name email branch')
       .sort({ createdAt: -1 });
 
+    const BASE = process.env.BACKEND_URL || 'http://localhost:5000';
     const formattedRequests = requests.map(req => {
       let imageUrl = null;
       if (typeof req.image === 'string') {
-        imageUrl = req.image.startsWith('http') ? req.image : `http://localhost:5000/uploads/${req.image}`;
+        imageUrl = req.image.startsWith('http') ? req.image : `${BASE}/uploads/${req.image}`;
       } else if (req.image && req.image.url) {
-        imageUrl = req.image.url.startsWith('http') ? req.image.url : `http://localhost:5000${req.image.url}`;
+        imageUrl = req.image.url.startsWith('http') ? req.image.url : `${BASE}${req.image.url}`;
       }
       return { ...req.toObject(), image: imageUrl };
     });
@@ -287,10 +288,11 @@ const createAdminBanner = async (req, res) => {
     const expiresAt = new Date();
     expiresAt.setFullYear(expiresAt.getFullYear() + 100); // Admin banners basically never expire automatically
 
+    const BASE = process.env.BACKEND_URL || 'http://localhost:5000';
     const isCloudinary = req.file.path && req.file.path.startsWith('http');
     const imageData = isCloudinary
       ? { url: req.file.path, public_id: req.file.filename }
-      : { url: `http://localhost:5000/uploads/${req.file.filename}`, public_id: req.file.filename };
+      : { url: `${BASE}/uploads/${req.file.filename}`, public_id: req.file.filename };
 
     const newBanner = await ItemRequest.create({
       itemName: itemName || 'Announcement',
@@ -321,10 +323,11 @@ const updateBannerAdmin = async (req, res) => {
     if (type !== undefined) request.type = type;
 
     if (req.file) {
+      const BASE = process.env.BACKEND_URL || 'http://localhost:5000';
       const isCloudinary = req.file.path && req.file.path.startsWith('http');
       const imageData = isCloudinary
         ? { url: req.file.path, public_id: req.file.filename }
-        : { url: `http://localhost:5000/uploads/${req.file.filename}`, public_id: req.file.filename };
+        : { url: `${BASE}/uploads/${req.file.filename}`, public_id: req.file.filename };
       request.image = imageData;
     }
 

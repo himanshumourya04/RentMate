@@ -118,31 +118,32 @@ const QueryDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {requests.map(req => (
             <div key={req._id} className="bg-white border text-sm border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
-              <div className="h-48 overflow-hidden bg-slate-100 relative">
-                <img 
-                  src={req.image || 'https://placehold.co/400x300?text=No+Image'} 
-                  alt={req.itemName} 
-                  onError={(e) => { e.target.src = 'https://placehold.co/400x300?text=No+Image'; }}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-bold text-slate-700 rounded-lg shadow-sm">
-                  ⏳ Need for: {req.duration}
+              <Link to={`/requests/${req._id}`} className="block group">
+                <div className="h-48 overflow-hidden bg-slate-100 relative">
+                  <img 
+                    src={req.image || 'https://placehold.co/400x300?text=No+Image'} 
+                    alt={req.itemName} 
+                    onError={(e) => { e.target.src = 'https://placehold.co/400x300?text=No+Image'; }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-bold text-slate-700 rounded-lg shadow-sm">
+                    ⏳ Need for: {req.duration}
+                  </div>
                 </div>
-              </div>
-              
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-lg text-slate-800 line-clamp-1" title={req.itemName}>
-                    {req.itemName}
-                  </h3>
-                  <span className="bg-primary-50 text-primary-700 text-xs px-2 py-0.5 rounded font-medium border border-primary-100 shrink-0 ml-2">
-                    {req.branch}
-                  </span>
+                <div className="px-5 pt-4 pb-2">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-lg text-slate-800 line-clamp-1 group-hover:text-primary-600 transition-colors" title={req.itemName}>
+                      {req.itemName}
+                    </h3>
+                    <span className="bg-primary-50 text-primary-700 text-xs px-2 py-0.5 rounded font-medium border border-primary-100 shrink-0 ml-2">
+                      {req.branch}
+                    </span>
+                  </div>
+                  <p className="text-slate-600 mb-3 line-clamp-2 h-10">{req.description}</p>
                 </div>
-                
-                <p className="text-slate-600 mb-4 line-clamp-2 h-10">{req.description}</p>
-                
-                <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+              </Link>
+              <div className="px-5 pb-5 pt-2">
+                <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
                     <img 
                       src={req.userId?.profileImage ? `${BACKEND_URL}/uploads/${req.userId.profileImage}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.userId?.name || 'U')}&background=random`} 
