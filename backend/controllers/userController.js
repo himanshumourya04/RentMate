@@ -109,15 +109,15 @@ const getAllStudentsForManagement = async (req, res) => {
 // @access  Private
 const getManagementByBranch = async (req, res) => {
   try {
-    const userBranch = req.user.branch;
+    const branchToQuery = req.query.branch || req.user.branch;
     
-    if (!userBranch) {
-      return res.status(400).json({ message: 'Your profile does not have an assigned branch.' });
+    if (!branchToQuery) {
+      return res.status(400).json({ message: 'No branch specified.' });
     }
 
     const managementTeam = await User.find({
       role: 'management',
-      branch: userBranch.toUpperCase()
+      branch: branchToQuery.toUpperCase()
     }).select('name email branch phone profileImage');
 
     res.json(managementTeam);

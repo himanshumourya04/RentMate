@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getRequestById } from '../services/api';
+import { getRequestById, getManagementByBranch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { BACKEND_URL } from '../config';
 
 // Native relative time helper — no extra packages needed
 const timeAgo = (dateStr) => {
@@ -21,6 +22,7 @@ const RequestDetails = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [request, setRequest] = useState(null);
+  const [managementProfiles, setManagementProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +30,14 @@ const RequestDetails = () => {
       try {
         const { data } = await getRequestById(id);
         setRequest(data);
+        if (data.branch) {
+          try {
+            const mgtRes = await getManagementByBranch(data.branch);
+            setManagementProfiles(mgtRes.data);
+          } catch(err) {
+            console.error('Failed to load management for this branch', err);
+          }
+        }
       } catch (err) {
         toast.error('Failed to load request details');
         navigate('/');
@@ -97,22 +107,75 @@ const RequestDetails = () => {
                 <p className="text-slate-600 whitespace-pre-line leading-relaxed">{request.description}</p>
               </div>
 
-              <div className="flex items-center gap-4 mb-8 pb-8 border-b border-slate-100">
-                <img 
-                  src={request.userId.profileImage?.url || '/default-avatar.png'} 
-                  alt={request.userId.name} 
-                  className="w-14 h-14 rounded-full object-cover border-2 border-slate-200"
-                />
-                <div>
-                  <p className="text-sm text-slate-500 font-medium">Requested by</p>
-                  <p className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                    {request.userId.name}
-                    {request.userId.managementVerified && (
-                      <span className="text-blue-500 text-xl" title="Verified Student">✓</span>
-                    )}
-                  </p>
+              <div className="mb-8 pb-8 border-b border-slate-100">
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <span>👤</span> Request Creator
+                </h3>
+                <div className="bg-white border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4 hover:shadow-md transition">
+                  <div className="flex items-center gap-4">
+                    <img 
+                      src={request.userId.profileImage ? `${BACKEND_URL}/uploads/${request.userId.profileImage}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(request.userId.name)}&background=random`} 
+                      alt={request.userId.name} 
+                      className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
+                    />
+                    <div>
+                      <p className="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        {request.userId.name}
+                        {request.userId.managementVerified && (
+                          <span className="text-blue-500 text-xl" title="Verified Student">✓</span>
+                        )}
+                      </p>
+                      <p className="text-sm text-slate-500 font-medium">{request.userId.branch || 'Unknown'} Department</p>
+                    </div>
+                  </div>
+                  {!isOwner && (
+                    <div className="flex gap-2 shrink-0 w-full sm:w-auto">
+                      <Link to={`/user/${request.userId._id}`} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800 rounded-xl transition text-sm font-medium">
+                        View Profile
+                      </Link>
+                      <Link to={`/messages?userId=${request.userId._id}`} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center bg-primary-50 border border-primary-100 text-primary-700 hover:bg-primary-100 hover:text-primary-800 rounded-xl transition text-sm font-medium">
+                        Message
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Management Team Section */}
+              {managementProfiles.length > 0 && (
+                <div className="mb-8 pb-8 border-b border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span>🛡️</span> {request.branch} Management Team
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {managementProfiles.map(profile => (
+                      <div key={profile._id} className="bg-white border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm hover:shadow-md transition duration-300 gap-4">
+                        <div className="flex items-center gap-4">
+                          <img 
+                            src={profile.profileImage ? `${BACKEND_URL}/uploads/${profile.profileImage}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random`} 
+                            alt={profile.name} 
+                            className="w-12 h-12 rounded-full object-cover border border-slate-100"
+                          />
+                          <div>
+                            <h3 className="font-bold text-slate-800 text-base">{profile.name}</h3>
+                            <p className="text-sm text-slate-500 font-medium">{profile.branch} Management</p>
+                          </div>
+                        </div>
+                        {(!user || user._id !== profile._id) && (
+                          <div className="flex gap-2 shrink-0 w-full sm:w-auto">
+                            <Link to={`/user/${profile._id}`} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800 rounded-xl transition text-sm font-medium">
+                              View Profile
+                            </Link>
+                            <Link to={`/messages?userId=${profile._id}`} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center bg-indigo-50 border border-indigo-100 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 rounded-xl transition text-sm font-medium">
+                              Message Mgt
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}
