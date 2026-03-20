@@ -63,6 +63,13 @@ const RequestDetails = () => {
 
   const isOwner = user && user._id === request.userId._id;
 
+  let requestImageUrl = '/placeholder-image.png';
+  if (typeof request.image === 'string') {
+    requestImageUrl = request.image.startsWith('http') ? request.image : `${BACKEND_URL}/uploads/${request.image}`;
+  } else if (request.image && request.image.url) {
+    requestImageUrl = request.image.url.startsWith('http') ? request.image.url : `${BACKEND_URL}${request.image.url}`;
+  }
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -74,9 +81,10 @@ const RequestDetails = () => {
           {/* Image Section */}
           <div className="md:w-1/2 relative h-72 md:h-auto bg-slate-100">
             <img 
-              src={request.image.url} 
+              src={requestImageUrl} 
               alt={request.itemName} 
               className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => { e.target.src = '/placeholder-image.png'; }}
             />
             {request.isPinned && (
               <div className="absolute top-4 left-4 bg-red-600 shadow-lg text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
