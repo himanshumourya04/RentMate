@@ -145,10 +145,26 @@ router.post('/message', auth, async (req, res) => {
 
     if (!conversation) return res.status(404).json({ message: 'Conversation not found' });
 
+    const actualReceiverId = receiverId || conversation.participants.find(p => p.toString() !== req.user.id);
+    
+    // BACKEND VALIDATION: Strict Cross-Branch Chat Checking
+    const sender = await User.findById(req.user.id);
+    const receiver = await User.findById(actualReceiverId);
+    
+    // Prevent messaging if branches do not match (admins are exempt)
+    if (sender.role !== 'admin' && receiver.role !== 'admin') {
+      const senderBranch = sender.branch ? sender.branch.toUpperCase() : null;
+      const receiverBranch = receiver.branch ? receiver.branch.toUpperCase() : null;
+      
+      if (!senderBranch || !receiverBranch || senderBranch !== receiverBranch) {
+        return res.status(403).json({ message: 'Unauthorized communication: Branch mismatch' });
+      }
+    }
+
     const newMessage = new Message({
       conversationId: conversation._id,
       senderId: req.user.id,
-      receiverId: receiverId || conversation.participants.find(p => p.toString() !== req.user.id),
+      receiverId: actualReceiverId,
       messageText: messageText || '',
       fileUrl,
       fileType
