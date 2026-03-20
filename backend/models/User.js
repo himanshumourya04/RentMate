@@ -67,7 +67,7 @@ userSchema.pre('findOneAndDelete', async function(next) {
       const Booking = require('./Booking');
       const ItemRequest = require('./ItemRequest');
       const Message = require('./Message');
-      const Otp = require('./Otp');
+      const Otp = require('./OTP'); // Fixed case sensitivity
 
       // 1. Cascade items linearly to safely trigger Item's own pre-hooks
       const items = await Item.find({ ownerId: userDoc._id });
