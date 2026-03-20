@@ -37,4 +37,22 @@ router.get('/me', protect, getMe);
 router.post('/send-email-otp', sendEmailOtp);
 router.post('/verify-email-otp', verifyEmailOtp);
 
+// ── Test email route — GET /api/auth/test-email?to=your@email.com ────────────
+router.get('/test-email', async (req, res) => {
+  const { sendEmail } = require('../utils/sendEmail');
+  const to = req.query.to || process.env.EMAIL_FROM || process.env.SMTP_USER;
+  if (!to) return res.status(400).json({ message: 'Provide ?to=email query param' });
+  try {
+    await sendEmail({
+      to,
+      subject: 'RentMate SMTP Test ✅',
+      html: `<h2>🎓 RentMate</h2><p>If you see this, your Brevo SMTP is working correctly on Render!</p><p>Time: ${new Date().toISOString()}</p>`,
+    });
+    res.json({ message: `✅ Test email sent to ${to}` });
+  } catch (err) {
+    console.error('Test email failed:', err.message);
+    res.status(500).json({ message: `❌ Email failed: ${err.message}` });
+  }
+});
+
 module.exports = router;
