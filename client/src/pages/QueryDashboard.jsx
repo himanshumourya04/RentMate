@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getActiveRequests, reportItemRequest, deleteItemRequest, updateItemRequest } from '../services/api';
+import { getActiveRequests, reportItemRequest, deleteItemRequest, updateItemRequest, getManagementByBranch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { BACKEND_URL } from '../config';
@@ -9,6 +9,7 @@ const QueryDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
+  const [managementProfiles, setManagementProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Report Modal state
@@ -20,7 +21,19 @@ const QueryDashboard = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+    if (user && user.role === 'student') {
+      fetchManagementProfiles();
+    }
+  }, [user]);
+
+  const fetchManagementProfiles = async () => {
+    try {
+      const { data } = await getManagementByBranch();
+      setManagementProfiles(data);
+    } catch (err) {
+      console.error('Failed to load management profiles:', err);
+    }
+  };
 
   const fetchRequests = async () => {
     try {
@@ -102,6 +115,38 @@ const QueryDashboard = () => {
           </Link>
         </div>
       </div>
+
+      {/* Management Team Section for Students */}
+      {user && user.role === 'student' && managementProfiles.length > 0 && (
+        <div className="mb-10">
+          <h2 className="text-xl font-bold text-slate-800 mb-4 tracking-tight">Your Branch Management Team</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {managementProfiles.map(profile => (
+              <div key={profile._id} className="bg-white border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition duration-300">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={profile.profileImage ? `${BACKEND_URL}/uploads/${profile.profileImage}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random`} 
+                    alt={profile.name} 
+                    className="w-12 h-12 rounded-full object-cover border border-slate-100"
+                  />
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-sm">{profile.name}</h3>
+                    <p className="text-xs text-slate-500 font-medium">{profile.branch} Management</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Link to={`/user/${profile._id}`} className="h-9 px-3 flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800 rounded-xl transition text-sm font-medium" title="View Profile">
+                    Profile
+                  </Link>
+                  <Link to={`/messages?userId=${profile._id}`} className="h-9 px-3 flex items-center justify-center bg-primary-50 border border-primary-100 text-primary-700 hover:bg-primary-100 hover:text-primary-800 rounded-xl transition text-sm font-medium" title="Message">
+                    Message
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center items-center h-64">

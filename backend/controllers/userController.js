@@ -104,4 +104,26 @@ const getAllStudentsForManagement = async (req, res) => {
   }
 };
 
-module.exports = { upload, updateProfile, getStudentDetails, getAllStudentsForManagement, getUserBasicInfo };
+// @desc    Get management team members for the logged-in user's branch
+// @route   GET /api/users/management/branch
+// @access  Private
+const getManagementByBranch = async (req, res) => {
+  try {
+    const userBranch = req.user.branch;
+    
+    if (!userBranch) {
+      return res.status(400).json({ message: 'Your profile does not have an assigned branch.' });
+    }
+
+    const managementTeam = await User.find({
+      role: 'management',
+      branch: userBranch.toUpperCase()
+    }).select('name email branch phone profileImage');
+
+    res.json(managementTeam);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { upload, updateProfile, getStudentDetails, getAllStudentsForManagement, getUserBasicInfo, getManagementByBranch };

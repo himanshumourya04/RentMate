@@ -36,11 +36,14 @@ const createRequest = async (req, res) => {
       ? { url: req.file.path, public_id: req.file.filename }
       : { url: `${BASE}/uploads/${req.file.filename}`, public_id: req.file.filename };
 
+    const userBranch = req.user.branch || branch || 'N/A';
+    const normalizedBranch = userBranch.toUpperCase();
+
     const newRequest = await ItemRequest.create({
       userId: req.user._id,
       itemName,
       description,
-      branch,
+      branch: normalizedBranch,
       duration: duration || '1 week',
       image: imageData,
       type: 'user',

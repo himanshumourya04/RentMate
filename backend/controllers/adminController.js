@@ -194,7 +194,13 @@ const adminDeleteItem = async (req, res) => {
 // GET /api/admin/requests
 const getAllRequestsAdmin = async (req, res) => {
   try {
-    const requests = await ItemRequest.find()
+    const filter = {};
+    // Strict branch-based filtering for Management Team
+    if (req.user.role === 'management' && req.user.branch) {
+      filter.branch = req.user.branch.toUpperCase();
+    }
+
+    const requests = await ItemRequest.find(filter)
       .populate('userId', 'name email branch')
       .sort({ createdAt: -1 });
 

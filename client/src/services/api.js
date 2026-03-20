@@ -56,6 +56,7 @@ export const rejectVerification = (id, remarks) =>
 // User — Student details for management view
 export const getAllStudentsForManagement = () => API.get('/users/students');
 export const getStudentDetails = (id) => API.get(`/users/student/${id}`);
+export const getManagementByBranch = () => API.get('/users/management/branch');
 
 // Chat Uploads
 export const uploadChatFile = (formData) =>
