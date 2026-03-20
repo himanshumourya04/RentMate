@@ -26,9 +26,10 @@ const AdminStudents = () => {
     try {
       await deleteStudentAdmin(id);
       toast.success('Student account deleted');
-      fetchStudents();
-    } catch {
-      toast.error('Failed to delete student');
+      setStudents(prev => prev.filter(s => s._id !== id));
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to delete student';
+      toast.error(`Delete failed: ${msg}`);
     }
   };
 

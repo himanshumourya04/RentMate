@@ -147,9 +147,10 @@ const AdminManagement = () => {
     try {
       await deleteManagementUserAdmin(id);
       toast.success('Management account deleted');
-      fetchManagement();
-    } catch {
-      toast.error('Failed to delete');
+      setManagementList(prev => prev.filter(m => m._id !== id));
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to delete';
+      toast.error(`Delete failed: ${msg}`);
     }
   };
 
