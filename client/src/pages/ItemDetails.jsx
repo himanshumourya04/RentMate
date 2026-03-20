@@ -122,20 +122,32 @@ const ItemDetails = () => {
                 ₹{item.pricePerDay}<span className="text-base font-normal text-slate-500"> /day</span>
               </div>
               {item.ownerId && (
-                <div 
-                  className="mt-3 flex items-center gap-3 pt-3 border-t border-slate-100 cursor-pointer hover:opacity-80 transition-opacity w-fit"
-                  onClick={() => navigate(`/user/${item.ownerId._id}`)}
-                >
-                  <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm">
-                    {item.ownerId?.profileImage ? (
-                      <img src={`${BACKEND_URL}/uploads/${item.ownerId.profileImage}`} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-white font-bold text-sm">{item.ownerId?.name?.[0]?.toUpperCase()}</span>
-                    )}
+                <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-slate-100">
+                  <div 
+                    className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate(`/user/${item.ownerId._id}`)}
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm">
+                      {item.ownerId?.profileImage ? (
+                        <img src={`${BACKEND_URL}/uploads/${item.ownerId.profileImage}`} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-white font-bold text-sm">{item.ownerId?.name?.[0]?.toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-800 text-sm hover:text-primary-600 transition-colors flex items-center gap-1">
+                        {item.ownerId?.name}
+                      </p>
+                      {item.ownerId?.branch && <p className="text-xs text-slate-500">{item.ownerId.branch} Department</p>}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-slate-800 text-sm hover:text-primary-600 transition-colors">{item.ownerId?.name}</p>
-                  </div>
+                  
+                  <button
+                    onClick={() => navigate(`/user/${item.ownerId._id}`)}
+                    className="h-9 px-4 flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800 rounded-xl transition text-sm font-medium w-full sm:w-auto"
+                  >
+                    View Profile
+                  </button>
                 </div>
               )}
             </div>
