@@ -1,18 +1,24 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Sends an email using Resend API (preferred) or Nodemailer SMTP as fallback.
+ * Sends an email using Nodemailer.
+ * Supports Brevo, Gmail, or any SMTP provider via environment variables.
  * 
- * For production (Render): set RESEND_API_KEY in environment variables.
- *   Get a free key at https://resend.com (3000 emails/month free)
- * 
- * For local dev: SMTP with Gmail App Password still works fine.
+ * Brevo (recommended for cloud servers - free 300 emails/day):
+ *   SMTP_HOST=smtp-relay.brevo.com
+ *   SMTP_PORT=587
+ *   SMTP_USER=<your brevo login email>
+ *   SMTP_PASS=<your brevo SMTP key>
+ *   FROM_EMAIL=<your verified sender email on Brevo>
  */
 
 const createTransporter = () => {
+  const host = process.env.SMTP_HOST || 'smtp-relay.brevo.com';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  console.log(`📧 Creating SMTP transport: ${host}:${port} user=${process.env.SMTP_USER}`);
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
+    host,
+    port,
     secure: false,
     auth: {
       user: process.env.SMTP_USER,
