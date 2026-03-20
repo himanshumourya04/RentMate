@@ -1,55 +1,79 @@
-const nodemailer = require('nodemailer');
+const https = require('https');
 
 /**
- * Email utility using Brevo SMTP (recommended for cloud/Render deployment).
+ * Email utility using Brevo HTTP API v3 (NOT SMTP).
+ *
+ * WHY HTTP API: Cloud hosting providers (Render free tier) block outbound SMTP
+ * port 587. HTTP API uses port 443 which is always open.
  *
  * Required environment variables on Render:
- *   BREVO_SMTP_USER  — your Brevo SMTP login (e.g. a57ee4001@smtp-brevo.com)
- *   BREVO_SMTP_PASS  — your Brevo generated SMTP key
- *   EMAIL_FROM       — verified sender email (e.g. himanshu7046m@gmail.com)
+ *   BREVO_API_KEY  — your Brevo API key (from Brevo → SMTP & API → API Keys tab)
+ *   EMAIL_FROM     — verified sender email (e.g. himanshu7046m@gmail.com)
  *
- * Local dev fallback: uses SMTP_USER / SMTP_PASS with Gmail App Password.
+ * Get your API key at: https://app.brevo.com → SMTP & API → API Keys & MCP
  */
 
-const createTransporter = () => {
-  const host = 'smtp-relay.brevo.com';
-  const port = 587;
-  const user = process.env.BREVO_SMTP_USER || process.env.SMTP_USER;
-  const pass = process.env.BREVO_SMTP_PASS || process.env.SMTP_PASS;
-
-  if (!user || !pass) {
-    console.error('❌ SMTP credentials missing! Set BREVO_SMTP_USER and BREVO_SMTP_PASS on Render.');
-  } else {
-    console.log(`📧 SMTP transport ready: ${host}:${port} | user=${user}`);
-  }
-
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure: false, // STARTTLS
-    auth: { user, pass },
-    tls: { rejectUnauthorized: false },
-  });
-};
-
 /**
- * Sends an email.
+ * Sends an email via Brevo HTTP API v3.
  * @param {Object} options - { to, subject, html }
  */
 const sendEmail = async ({ to, subject, html }) => {
+  const apiKey = process.env.BREVO_API_KEY;
   const fromEmail = process.env.EMAIL_FROM || process.env.FROM_EMAIL || process.env.SMTP_USER;
-  const from = `RentMate <${fromEmail}>`;
 
-  const transporter = createTransporter();
-
-  try {
-    const info = await transporter.sendMail({ from, to, subject, html });
-    console.log(`✅ Email sent to ${to} | MessageId: ${info.messageId} | Response: ${info.response}`);
-    return info;
-  } catch (error) {
-    console.error(`❌ Email send failed to ${to}:`, error.message);
-    throw new Error(`Failed to send email: ${error.message}`);
+  if (!apiKey) {
+    console.error('❌ BREVO_API_KEY is not set in environment variables!');
+    throw new Error('BREVO_API_KEY missing. Set it in Render environment variables.');
   }
+
+  if (!fromEmail) {
+    console.error('❌ EMAIL_FROM is not set in environment variables!');
+    throw new Error('EMAIL_FROM missing. Set it in Render environment variables.');
+  }
+
+  const payload = JSON.stringify({
+    sender: { name: 'RentMate', email: fromEmail },
+    to: [{ email: to }],
+    subject,
+    htmlContent: html,
+  });
+
+  console.log(`📧 Sending email via Brevo API to: ${to}`);
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname: 'api.brevo.com',
+        path: '/v3/smtp/email',
+        method: 'POST',
+        headers: {
+          'api-key': apiKey,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload),
+        },
+      },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            const parsed = JSON.parse(data);
+            console.log(`✅ Email sent to ${to} | Brevo messageId: ${parsed.messageId}`);
+            resolve(parsed);
+          } else {
+            console.error(`❌ Brevo API error ${res.statusCode}:`, data);
+            reject(new Error(`Brevo API error ${res.statusCode}: ${data}`));
+          }
+        });
+      }
+    );
+    req.on('error', (err) => {
+      console.error('❌ Brevo HTTP request error:', err.message);
+      reject(err);
+    });
+    req.write(payload);
+    req.end();
+  });
 };
 
 /**
@@ -76,9 +100,7 @@ const otpEmailHtml = (otp, name = 'Student') => `
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>🎓 RentMate</h1>
-    </div>
+    <div class="header"><h1>🎓 RentMate</h1></div>
     <div class="body">
       <p class="greeting">Hi <strong>${name}</strong>, verify your email to finish creating your RentMate account.</p>
       <div class="otp-box">
