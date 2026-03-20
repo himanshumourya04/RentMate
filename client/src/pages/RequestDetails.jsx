@@ -133,16 +133,18 @@ const RequestDetails = () => {
                       <Link to={`/user/${request.userId._id}`} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800 rounded-xl transition text-sm font-medium">
                         View Profile
                       </Link>
-                      <Link to={`/messages?userId=${request.userId._id}`} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center bg-primary-50 border border-primary-100 text-primary-700 hover:bg-primary-100 hover:text-primary-800 rounded-xl transition text-sm font-medium">
-                        Message
-                      </Link>
+                      {user?.role === 'student' && (
+                        <Link to={`/messages?userId=${request.userId._id}`} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center bg-primary-50 border border-primary-100 text-primary-700 hover:bg-primary-100 hover:text-primary-800 rounded-xl transition text-sm font-medium">
+                          Message
+                        </Link>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Management Team Section */}
-              {managementProfiles.length > 0 && (
+              {/* Management Team Section (Only relevant for Students) */}
+              {user?.role === 'student' && managementProfiles.length > 0 && (
                 <div className="mb-8 pb-8 border-b border-slate-100">
                   <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <span>🛡️</span> {request.branch} Management Team
@@ -188,9 +190,11 @@ const RequestDetails = () => {
                   </p>
                 </div>
               ) : request.status === 'active' ? (
-                <Link to={`/messages?userId=${request.userId._id}`} className="btn-primary w-full py-4 text-lg font-bold shadow-md shadow-primary-200 hover:shadow-lg hover:shadow-primary-300 transition-all flex items-center justify-center gap-2">
-                  <span>🤝</span> I Have This Item
-                </Link>
+                user?.role === 'student' ? (
+                  <Link to={`/messages?userId=${request.userId._id}`} className="btn-primary w-full py-4 text-lg font-bold shadow-md shadow-primary-200 hover:shadow-lg hover:shadow-primary-300 transition-all flex items-center justify-center gap-2">
+                    <span>🤝</span> I Have This Item
+                  </Link>
+                ) : null
               ) : (
                 <div className="bg-slate-100 text-slate-500 font-bold p-4 rounded-xl text-center">
                   This request is closed.
