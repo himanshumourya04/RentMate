@@ -152,19 +152,8 @@ router.post('/message', auth, async (req, res) => {
     const receiver = await User.findById(actualReceiverId);
     
     // Check if a management user is involved in the conversation
-    /* 
-    const isManagementInvolved = sender.role === 'management' || receiver.role === 'management';
-
-    // Prevent messaging if branches do not match (admins are exempt), but ONLY enforce for Management team interactions
-    if (isManagementInvolved && sender.role !== 'admin' && receiver.role !== 'admin') {
-      const senderBranch = sender.branch ? sender.branch.toUpperCase() : null;
-      const receiverBranch = receiver.branch ? receiver.branch.toUpperCase() : null;
-      
-      if (!senderBranch || !receiverBranch || senderBranch !== receiverBranch) {
-        return res.status(403).json({ message: 'Unauthorized communication: Branch mismatch' });
-      }
-    }
-    */
+    // Branch matching restriction removed to allow items cross-branch rentals.
+    console.log(`Chat initiated between ${sender.role} and ${receiver.role}`);
 
     const newMessage = new Message({
       conversationId: conversation._id,
