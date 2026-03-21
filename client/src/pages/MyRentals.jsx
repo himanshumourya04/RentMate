@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getStudentBookings, finalizeBooking } from '../services/api';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react'; // Added useState and useEffect
+import axios from 'axios';
 
 import { BACKEND_URL } from '../config';
 
@@ -30,17 +31,18 @@ const MyRentals = () => {
       setMessagingOwner(true);
       try {
         const token = localStorage.getItem('rentmate_token');
-        await fetch(`${BACKEND_URL}/api/messages/conversation/${ownerId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ chatType: 'student_student' })
-        });
-        navigate('/messages');
+        await axios.post(`${BACKEND_URL}/api/chat/message`, 
+          { 
+            receiverId: ownerId,
+            messageText: "Hello, I am reaching out regarding my rental request."
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        navigate(`/messages?userId=${ownerId}`);
       } catch (error) {
-          toast.error('Could not start conversation');
+          toast.error(error.response?.data?.message || 'Could not start conversation');
       } finally {
           setMessagingOwner(false);
       }
@@ -51,25 +53,26 @@ const MyRentals = () => {
     try {
       const token = localStorage.getItem('rentmate_token');
       // 1. Get management assigned or any management
-      const res = await fetch(`${BACKEND_URL}/api/verification/management/${bookingId}`, {
+      const res = await axios.get(`${BACKEND_URL}/api/verification/management/${bookingId}`, {
           headers: { Authorization: `Bearer ${token}` }
       });
-      const management = await res.json();
+      const management = res.data;
       
-      if (!res.ok) throw new Error(management.message || 'Management not found');
+      if (!management || !management._id) throw new Error('Management not found');
 
       // 2. Start conversation
-      await fetch(`${BACKEND_URL}/api/messages/conversation/${management._id}`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({ chatType: 'student_management' })
-      });
-      navigate('/messages');
+      await axios.post(`${BACKEND_URL}/api/chat/message`, 
+         { 
+            receiverId: management._id,
+            messageText: "Hello, I have a question regarding my rental verification."
+         },
+         {
+            headers: { Authorization: `Bearer ${token}` }
+         }
+      );
+      navigate(`/messages?userId=${management._id}`);
     } catch (error) {
-        toast.error(error.message || 'Could not start conversation');
+        toast.error(error.response?.data?.message || error.message || 'Could not start conversation');
     } finally {
         setMessagingManagement(false);
     }

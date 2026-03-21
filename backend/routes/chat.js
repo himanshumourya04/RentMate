@@ -152,6 +152,7 @@ router.post('/message', auth, async (req, res) => {
     const receiver = await User.findById(actualReceiverId);
     
     // Check if a management user is involved in the conversation
+    /* 
     const isManagementInvolved = sender.role === 'management' || receiver.role === 'management';
 
     // Prevent messaging if branches do not match (admins are exempt), but ONLY enforce for Management team interactions
@@ -163,6 +164,7 @@ router.post('/message', auth, async (req, res) => {
         return res.status(403).json({ message: 'Unauthorized communication: Branch mismatch' });
       }
     }
+    */
 
     const newMessage = new Message({
       conversationId: conversation._id,

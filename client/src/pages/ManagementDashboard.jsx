@@ -2,9 +2,31 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllVerifications } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { BACKEND_URL } from '../config';
 
 const StudentCard = ({ student, label, color }) => {
   const navigate = useNavigate();
+
+  const handleMessage = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem('rentmate_token');
+      await axios.post(`${BACKEND_URL}/api/chat/message`, 
+        { 
+          receiverId: student._id,
+          messageText: "Hello, I am reaching out regarding a rental request."
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      navigate(`/messages?userId=${student._id}`);
+    } catch(err) {
+      toast.error(err.response?.data?.message || "Could not start conversation");
+    }
+  };
+
   return (
     <div className={`rounded-xl border p-4 ${color}`}>
       <div className="flex items-center justify-between">
@@ -14,16 +36,24 @@ const StudentCard = ({ student, label, color }) => {
           <p className="text-xs text-slate-500">{student?.branch} • {student?.phone || 'No phone'}</p>
         </div>
         {student && (
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              navigate(`/user/${student._id}`);
-            }}
-            className="text-xs px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition font-medium text-primary-600 hover:text-primary-700 shadow-sm"
-          >
-            View Details
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(`/user/${student._id}`);
+              }}
+              className="text-xs px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition font-medium text-primary-600 hover:text-primary-700 shadow-sm"
+            >
+              View Details
+            </button>
+            <button
+              onClick={handleMessage}
+              className="text-xs px-3 py-1.5 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition font-medium text-primary-600 hover:text-primary-700 shadow-sm flex items-center justify-center gap-1"
+            >
+              💬 Message
+            </button>
+          </div>
         )}
       </div>
     </div>
