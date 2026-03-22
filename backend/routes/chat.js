@@ -151,14 +151,28 @@ router.post('/message', auth, async (req, res) => {
     const sender = await User.findById(req.user.id);
     const receiver = await User.findById(actualReceiverId);
     
-    // Apply Conditional Branch Validation exclusively for Management
+    // STEP 9: FRONTEND SAFETY FIX
+    console.log("receiverId:", receiverId);
+    // STEP 1: DEBUG LOGGING
+    console.log("Sender:", sender?.role, sender?.branch);
+    console.log("Receiver:", receiver?.role, receiver?.branch);
+
+    if (!sender || !receiver) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // STEP 3: FIX VALIDATION LOGIC (FINAL) - STEP 4: FIX ROLE CHECK
     if (sender.role === 'management' || receiver.role === 'management') {
-      if (sender.branch !== receiver.branch) {
+      // STEP 2: NORMALIZE BRANCH VALUES
+      const sBranch = sender.branch ? sender.branch.trim().toUpperCase() : '';
+      const rBranch = receiver.branch ? receiver.branch.trim().toUpperCase() : '';
+
+      if (sBranch !== rBranch) {
         return res.status(403).json({ message: 'Unauthorized communication: Branch mismatch' });
       }
     }
 
-    console.log(`Chat initiated between ${sender.role} and ${receiver.role}`);
+    console.log(`Chat initiated successfully`);
 
     const newMessage = new Message({
       conversationId: conversation._id,
