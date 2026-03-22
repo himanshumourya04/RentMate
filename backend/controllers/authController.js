@@ -97,32 +97,38 @@ const register = async (req, res) => {
 // @route POST /api/auth/send-email-otp
 const sendEmailOtp = async (req, res) => {
   try {
+    console.log("STEP 1: Request received");
     const { email, name } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
+
+    console.log("STEP 3: Email:", email);
 
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
       return res.status(400).json({ message: 'An account with this email already exists. Please login.' });
     }
 
-    const otp = generateOtp();
-    await Otp.createOtp(email.toLowerCase(), 'email', otp);
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    console.log("STEP 2: OTP generated:", otp);
 
-    // Always print OTP to console so dev testing works even without SMTP
+    console.log("STEP 6: Saving OTP to DB");
+    await Otp.createOtp(email.toLowerCase(), 'email', String(otp));
+
     console.log(`\n📧 EMAIL OTP for ${email}: ${otp}\n`);
 
-    // Send email in background (fire-and-forget) so API responds instantly
-    setImmediate(() => {
-      sendEmail({
-        to: email,
-        subject: 'Your RentMate Verification OTP',
-        html: otpEmailHtml(otp, name || 'Student'),
-      }).catch(err => console.warn('Email delivery failed (check SMTP config):', err.message));
+    console.log("STEP 4: Calling sendOTP");
+    // Step 9: Await the execution instead of fire-and-forget
+    await sendEmail({
+      to: email,
+      subject: 'Your RentMate Verification OTP',
+      html: otpEmailHtml(otp, name || 'Student'),
     });
+    console.log("STEP 5: sendOTP finished");
 
-    res.json({ message: `OTP sent to ${email}. Check your inbox (or server console in dev mode).` });
+    res.json({ message: `OTP sent to ${email}. Check your inbox.` });
   } catch (error) {
-    res.status(429).json({ message: error.message });
+    console.error("OTP ERROR:", error);
+    return res.status(500).json({ message: "OTP failed" });
   }
 };
 

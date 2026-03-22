@@ -112,6 +112,26 @@ app.use('/api/chat', require('./routes/chat'));
 app.use('/api/requests', require('./routes/requests'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 
+// Step 6: Create test email API (GET /api/test-email)
+app.get('/api/test-email', async (req, res) => {
+  const { sendEmail } = require('./utils/sendEmail');
+  const to = req.query.to || process.env.EMAIL_FROM;
+  if (!to) {
+    return res.status(400).json({ message: 'Please provide ?to=email parameter' });
+  }
+  try {
+    await sendEmail({
+      to,
+      subject: 'RentMate Test',
+      html: 'This is a test email.'
+    });
+    res.json({ message: `✅ Test email sent to ${to}` });
+  } catch (err) {
+    console.error('Test email failed:', err);
+    res.status(500).json({ message: 'Email failed', error: err.message });
+  }
+});
+
 // Basic health check route
 app.get('/', (req, res) => res.send(`RentMate API is running! Date: ${new Date().toISOString()} Version: 4`));
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: 4, timestamp: new Date().toISOString() }));

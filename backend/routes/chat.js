@@ -41,6 +41,7 @@ router.get('/conversations', auth, async (req, res) => {
 // Get total unread CONVERSATION count (total unseen users)
 router.get('/unread-count', auth, async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
     const unreadConvs = await Message.distinct('conversationId', {
       receiverId: req.user.id,
       read: false
