@@ -148,37 +148,33 @@ router.post('/message', auth, async (req, res) => {
     const actualReceiverId = receiverId || conversation.participants.find(p => p.toString() !== req.user.id);
     
     // Fetch user details for validation
-    const senderId = req.user.id;
-    const resolvedReceiverId = actualReceiverId;
+    // FINAL CODE LOGIC
 
-    const sender = await User.findById(senderId);
-    const receiver = await User.findById(resolvedReceiverId);
+    const sender = await User.findById(req.user.id);
+    const receiver = await User.findById(actualReceiverId);
 
     if (!sender || !receiver) {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const senderRole = sender.role;
-    const receiverRole = receiver.role;
-
-    // normalize branch
+    // normalize branch safely
     const senderBranch = sender.branch?.trim().toUpperCase();
     const receiverBranch = receiver.branch?.trim().toUpperCase();
 
-    // DEBUG LOG (keep this)
-    console.log("SENDER:", senderRole, senderBranch);
-    console.log("RECEIVER:", receiverRole, receiverBranch);
+    // DEBUG (keep this temporarily)
+    console.log("Sender:", sender.role, senderBranch);
+    console.log("Receiver:", receiver.role, receiverBranch);
 
-    // ONLY restrict if management is involved
-    if (senderRole === "management" || receiverRole === "management") {
-        if (senderBranch !== receiverBranch) {
-            return res.status(403).json({
-                message: "Unauthorized communication (branch mismatch)"
-            });
-        }
+    // RULE: Only restrict if MANAGEMENT involved
+    if (sender.role === "management" || receiver.role === "management") {
+      if (senderBranch !== receiverBranch) {
+        return res.status(403).json({
+          message: "Unauthorized communication: Branch mismatch"
+        });
+      }
     }
 
-    // OTHERWISE -> allow message ALWAYS
+    // OTHERWISE -> ALWAYS allow (student <-> student)
 
     const newMessage = new Message({
       conversationId: conversation._id,
