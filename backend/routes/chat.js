@@ -148,31 +148,37 @@ router.post('/message', auth, async (req, res) => {
     const actualReceiverId = receiverId || conversation.participants.find(p => p.toString() !== req.user.id);
     
     // Fetch user details for validation
-    const sender = await User.findById(req.user.id);
-    const receiver = await User.findById(actualReceiverId);
-    
-    // STEP 9: FRONTEND SAFETY FIX
-    console.log("receiverId:", receiverId);
-    // STEP 1: DEBUG LOGGING
-    console.log("Sender:", sender?.role, sender?.branch);
-    console.log("Receiver:", receiver?.role, receiver?.branch);
+    const senderId = req.user.id;
+    const resolvedReceiverId = actualReceiverId;
+
+    const sender = await User.findById(senderId);
+    const receiver = await User.findById(resolvedReceiverId);
 
     if (!sender || !receiver) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(400).json({ message: "User not found" });
     }
 
-    // STEP 3: FIX VALIDATION LOGIC (FINAL) - STEP 4: FIX ROLE CHECK
-    if (sender.role === 'management' || receiver.role === 'management') {
-      // STEP 2: NORMALIZE BRANCH VALUES
-      const sBranch = sender.branch ? sender.branch.trim().toUpperCase() : '';
-      const rBranch = receiver.branch ? receiver.branch.trim().toUpperCase() : '';
+    const senderRole = sender.role;
+    const receiverRole = receiver.role;
 
-      if (sBranch !== rBranch) {
-        return res.status(403).json({ message: 'Unauthorized communication: Branch mismatch' });
-      }
+    // normalize branch
+    const senderBranch = sender.branch?.trim().toUpperCase();
+    const receiverBranch = receiver.branch?.trim().toUpperCase();
+
+    // DEBUG LOG (keep this)
+    console.log("SENDER:", senderRole, senderBranch);
+    console.log("RECEIVER:", receiverRole, receiverBranch);
+
+    // ONLY restrict if management is involved
+    if (senderRole === "management" || receiverRole === "management") {
+        if (senderBranch !== receiverBranch) {
+            return res.status(403).json({
+                message: "Unauthorized communication (branch mismatch)"
+            });
+        }
     }
 
-    console.log(`Chat initiated successfully`);
+    // OTHERWISE -> allow message ALWAYS
 
     const newMessage = new Message({
       conversationId: conversation._id,
