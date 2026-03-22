@@ -113,8 +113,8 @@ app.use('/api/requests', require('./routes/requests'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 
 // Basic health check route
-app.get('/', (req, res) => res.send(`RentMate API is running! Date: ${new Date().toISOString()} Version: 2`));
-app.get('/api/health', (req, res) => res.json({ status: 'ok', version: 2, timestamp: new Date().toISOString() }));
+app.get('/', (req, res) => res.send(`RentMate API is running! Date: ${new Date().toISOString()} Version: 3`));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', version: 3, timestamp: new Date().toISOString() }));
 
 // 404 handler
 app.use((req, res) => {
