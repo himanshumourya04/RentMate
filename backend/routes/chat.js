@@ -147,12 +147,17 @@ router.post('/message', auth, async (req, res) => {
 
     const actualReceiverId = receiverId || conversation.participants.find(p => p.toString() !== req.user.id);
     
-    // BACKEND VALIDATION: Strict Cross-Branch Chat Checking
+    // Fetch user details for validation
     const sender = await User.findById(req.user.id);
     const receiver = await User.findById(actualReceiverId);
     
-    // Check if a management user is involved in the conversation
-    // Branch matching restriction removed to allow items cross-branch rentals.
+    // Apply Conditional Branch Validation exclusively for Management
+    if (sender.role === 'management' || receiver.role === 'management') {
+      if (sender.branch !== receiver.branch) {
+        return res.status(403).json({ message: 'Unauthorized communication: Branch mismatch' });
+      }
+    }
+
     console.log(`Chat initiated between ${sender.role} and ${receiver.role}`);
 
     const newMessage = new Message({
