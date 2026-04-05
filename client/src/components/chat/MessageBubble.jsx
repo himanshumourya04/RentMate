@@ -1,5 +1,5 @@
+import { useAuth } from '../../context/AuthContext';
 import { getPhotoUrl } from '../../utils/photoUtils';
-
 
 const MessageBubble = ({ message }) => {
   const { user } = useAuth();

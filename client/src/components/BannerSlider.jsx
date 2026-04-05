@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getRequestBanners } from '../services/api';
 import { getPhotoUrl } from '../utils/photoUtils';
-
 
 // Swiper React components & styles
 import { Swiper, SwiperSlide } from 'swiper/react';
