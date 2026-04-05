@@ -1,5 +1,5 @@
 import { getPhotoUrl } from '../utils/photoUtils';
-
+import { useNavigate, Link } from 'react-router-dom';
 
 const categories = [
   { icon: '📚', name: 'Books' },
