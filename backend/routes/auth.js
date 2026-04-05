@@ -5,14 +5,8 @@ const path = require('path');
 const { register, login, managementLogin, getMe, sendEmailOtp, verifyEmailOtp } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
-// Multer config for student registration uploads (collegeIdImage + selfieImage)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => {
-    const prefix = file.fieldname === 'selfieImage' ? 'selfie' : 'collegeid';
-    cb(null, `${prefix}-${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`);
-  },
-});
+const { storage } = require('../config/cloudinary');
+
 const fileFilter = (req, file, cb) => {
   const allowed = /jpeg|jpg|png|gif|webp/;
   if (allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype)) {

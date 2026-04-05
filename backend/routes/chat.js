@@ -86,22 +86,14 @@ router.get('/messages/:conversationId', auth, async (req, res) => {
   }
 });
 
+const { storage } = require('../config/cloudinary');
 const multer = require('multer');
-const path = require('path');
-
-// Multer Config
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/chat/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
 const upload = multer({ storage });
+
 
 // Ensure directory exists (use absolute path to be safe regardless of server cwd)
 const fs = require('fs');
+const path = require('path');
 const chatUploadsDir = path.join(__dirname, '../uploads/chat/');
 if (!fs.existsSync(chatUploadsDir)) {
   fs.mkdirSync(chatUploadsDir, { recursive: true });
@@ -112,7 +104,7 @@ if (!fs.existsSync(chatUploadsDir)) {
 router.post('/upload', auth, upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
   res.json({
-    fileUrl: `/uploads/chat/${req.file.filename}`,
+    fileUrl: req.file.path, // This is now the Cloudinary URL
     fileType: req.file.mimetype,
     fileName: req.file.originalname
   });

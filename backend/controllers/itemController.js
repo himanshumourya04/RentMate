@@ -1,29 +1,11 @@
-const path = require('path');
 const multer = require('multer');
 const Item = require('../models/Item');
+const { storage } = require('../config/cloudinary');
 
-// Multer config for image upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`);
-  },
+const upload = multer({ 
+  storage, 
+  limits: { fileSize: 5 * 1024 * 1024 } 
 });
-
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Images only (jpeg, jpg, png, gif, webp)'));
-  }
-};
-
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // @desc  Add a new item
 // @route POST /api/items/add
@@ -33,7 +15,7 @@ const addItem = async (req, res) => {
     if (!itemName || !description || !category || !pricePerDay) {
       return res.status(400).json({ message: 'Please provide all required fields' });
     }
-    const image = req.file ? req.file.filename : '';
+    const image = req.file ? req.file.path : '';
     const item = await Item.create({
       itemName,
       description,
@@ -107,7 +89,7 @@ const updateItem = async (req, res) => {
     if (pricePerDay !== undefined) item.pricePerDay = Number(pricePerDay);
     if (availability !== undefined) item.availability = availability;
     if (condition) item.condition = condition;
-    if (req.file) item.image = req.file.filename;
+    if (req.file) item.image = req.file.path;
     const updated = await item.save();
     res.json(updated);
   } catch (error) {

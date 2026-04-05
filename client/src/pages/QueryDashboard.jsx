@@ -4,6 +4,8 @@ import { getActiveRequests, reportItemRequest, deleteItemRequest, updateItemRequ
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { BACKEND_URL } from '../config';
+import { getPhotoUrl } from '../utils/photoUtils';
+
 
 const QueryDashboard = () => {
   const { user } = useAuth();
@@ -125,9 +127,10 @@ const QueryDashboard = () => {
               <div key={profile._id} className="bg-white border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition duration-300">
                 <div className="flex items-center gap-3">
                   <img 
-                    src={profile.profileImage ? `${BACKEND_URL}/uploads/${profile.profileImage}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random`} 
+                    src={getPhotoUrl(profile.profileImage)} 
                     alt={profile.name} 
                     className="w-12 h-12 rounded-full object-cover border border-slate-100"
+                    onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random`; }}
                   />
                   <div>
                     <h3 className="font-bold text-slate-800 text-sm">{profile.name}</h3>
@@ -166,7 +169,7 @@ const QueryDashboard = () => {
               <Link to={`/requests/${req._id}`} className="block group">
                 <div className="h-48 overflow-hidden bg-slate-100 relative">
                   <img 
-                    src={req.image || 'https://placehold.co/400x300?text=No+Image'} 
+                    src={getPhotoUrl(req.image)} 
                     alt={req.itemName} 
                     onError={(e) => { e.target.src = 'https://placehold.co/400x300?text=No+Image'; }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -191,9 +194,10 @@ const QueryDashboard = () => {
                 <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
                     <img 
-                      src={req.userId?.profileImage ? `${BACKEND_URL}/uploads/${req.userId.profileImage}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(req.userId?.name || 'U')}&background=random`} 
+                      src={getPhotoUrl(req.userId?.profileImage)} 
                       alt="" 
                       className="w-8 h-8 rounded-full object-cover bg-slate-200"
+                      onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(req.userId?.name || 'U')}&background=random`; }}
                     />
                     <div className="text-xs">
                       <p className="font-medium text-slate-800">{req.userId?.name || 'Unknown'}</p>

@@ -6,6 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 import { BACKEND_URL } from '../config';
+import { getPhotoUrl } from '../utils/photoUtils';
 
 const ItemDetails = () => {
   const { id } = useParams();
@@ -82,7 +83,7 @@ const ItemDetails = () => {
     <div className="min-h-screen flex items-center justify-center text-slate-500">Item not found</div>
   );
 
-  const imageUrl = item.image ? `${BACKEND_URL}/uploads/${item.image}` : null;
+  // const imageUrl = item.image ? `${BACKEND_URL}/uploads/${item.image}` : null; // No longer needed
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -95,8 +96,13 @@ const ItemDetails = () => {
           {/* Image */}
           <div className="card overflow-hidden">
             <div className="h-72 lg:h-96 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-              {imageUrl ? (
-                <img src={imageUrl} alt={item.itemName} className="w-full h-full object-cover" />
+              {item.image ? (
+                <img
+                  src={getPhotoUrl(item.image)}
+                  alt={item.itemName}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/800x600?text=No+Image'; }}
+                />
               ) : (
                 <span className="text-7xl">📦</span>
               )}
@@ -129,7 +135,12 @@ const ItemDetails = () => {
                   >
                     <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center overflow-hidden border border-slate-200 shadow-sm">
                       {item.ownerId?.profileImage ? (
-                        <img src={`${BACKEND_URL}/uploads/${item.ownerId.profileImage}`} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={getPhotoUrl(item.ownerId.profileImage)}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.src = 'https://via.placeholder.com/100x100?text=User'; }}
+                        />
                       ) : (
                         <span className="text-white font-bold text-sm">{item.ownerId?.name?.[0]?.toUpperCase()}</span>
                       )}

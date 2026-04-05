@@ -1,5 +1,5 @@
-import { useAuth } from '../../context/AuthContext';
-import { BACKEND_URL } from '../../config';
+import { getPhotoUrl } from '../../utils/photoUtils';
+
 
 const MessageBubble = ({ message }) => {
   const { user } = useAuth();
@@ -24,12 +24,13 @@ const MessageBubble = ({ message }) => {
           {message.fileUrl && (
             <div className="mb-2 max-w-[240px]">
               {message.fileType?.startsWith('image/') ? (
-                <a href={`${BACKEND_URL}${message.fileUrl}`} target="_blank" rel="noopener noreferrer">
-                  <img src={`${BACKEND_URL}${message.fileUrl}`} alt="Sent file" className="rounded-lg w-full max-h-60 object-cover border border-black/5" />
+                <a href={getPhotoUrl(message.fileUrl)} target="_blank" rel="noopener noreferrer">
+                  <img src={getPhotoUrl(message.fileUrl)} alt="Sent file" className="rounded-lg w-full max-h-60 object-cover border border-black/5" />
+
                 </a>
               ) : (
                 <a 
-                  href={`${BACKEND_URL}${message.fileUrl}`} 
+                  href={getPhotoUrl(message.fileUrl)} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-3 bg-white/50 rounded-lg border border-slate-200 hover:bg-white/80 transition-colors"

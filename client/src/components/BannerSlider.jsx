@@ -1,8 +1,5 @@
-import { BACKEND_URL } from '../config';
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { getRequestBanners } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { getPhotoUrl } from '../utils/photoUtils';
+
 
 // Swiper React components & styles
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -79,7 +76,7 @@ const BannerSlider = () => {
               <div className="block relative w-full h-56 md:h-64 rounded-xl overflow-hidden group/card isolate">
                 {/* Background Image */}
                 <img
-                  src={req.image || 'https://placehold.co/400x300?text=No+Image'}
+                  src={getPhotoUrl(req.image)}
                   alt={req.itemName}
                   onError={(e) => { e.target.src = 'https://placehold.co/400x300?text=No+Image'; }}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
@@ -119,9 +116,9 @@ const BannerSlider = () => {
                       }}
                     >
                       <img 
-                        src={req.userId?.profileImage ? `${BACKEND_URL}/uploads/${req.userId.profileImage}` : '/default-avatar.png'} 
+                        src={getPhotoUrl(req.userId?.profileImage)} 
                         alt={req.userId?.name} 
-                        onError={(e) => { e.target.src = 'https://placehold.co/100x100?text=?'; }}
+                        onError={(e) => { e.target.src = 'https://ui-avatars.com/api/?name=U&background=random'; }}
                         className="w-6 h-6 rounded-full object-cover border border-white/20"
                       />
                       <div className="flex flex-col">

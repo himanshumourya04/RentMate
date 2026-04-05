@@ -67,9 +67,9 @@ const register = async (req, res) => {
       branch: branch || null,
       department: department || branch || '',
       phone: phone || '',
-      collegeIdImage: req.files.collegeIdImage[0].filename,
-      selfieImage: req.files.selfieImage[0].filename,
-      profileImage: req.files.selfieImage[0].filename,
+      collegeIdImage: req.files.collegeIdImage[0].path,
+      selfieImage: req.files.selfieImage[0].path,
+      profileImage: req.files.selfieImage[0].path,
       emailVerified: true,
       managementVerified: false,
     });

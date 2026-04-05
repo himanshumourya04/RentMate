@@ -150,4 +150,19 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`✅ RentMate server running on http://localhost:${PORT}`);
+
+  // ── Keep-Alive Ping ──────────────────────────────────────────────────────
+  // Render free tier shuts down after 15 min of inactivity → 50+ sec cold starts.
+  // We ping /api/health every 14 min to keep the server warm in production only.
+  if (process.env.RENDER_EXTERNAL_URL) {
+    const keepAliveUrl = `${process.env.RENDER_EXTERNAL_URL}/api/health`;
+    setInterval(() => {
+      http.get(keepAliveUrl, (res) => {
+        console.log(`[keep-alive] ping → ${keepAliveUrl} | status: ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.warn(`[keep-alive] ping failed:`, err.message);
+      });
+    }, 14 * 60 * 1000); // every 14 minutes
+    console.log(`🔁 Keep-alive ping active → ${keepAliveUrl}`);
+  }
 });

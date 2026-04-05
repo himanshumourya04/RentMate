@@ -1,21 +1,18 @@
 const User = require('../models/User');
 const multer = require('multer');
-const path = require('path');
+const { storage: cloudinaryStorage } = require('../config/cloudinary');
 
-// Multer config for profile image
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, `profile-${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`),
-});
+// Multer config for profile image — uses Cloudinary so images persist across deploys
 const fileFilter = (req, file, cb) => {
   const allowed = /jpeg|jpg|png|gif|webp/;
+  const path = require('path');
   if (allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype)) {
     cb(null, true);
   } else {
     cb(new Error('Images only'));
   }
 };
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ storage: cloudinaryStorage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // @desc  Update logged-in user's profile
 // @route PUT /api/users/update-profile
@@ -26,13 +23,13 @@ const updateProfile = async (req, res) => {
 
     if (req.user.role === 'management') {
       // Management can ONLY update profile image
-      if (req.file) updateData.profileImage = req.file.filename;
+      if (req.file) updateData.profileImage = req.file.path; // Cloudinary returns full URL in .path
     } else {
       // Students / Admin can update name, phone, branch, profileImage
       if (name && name.trim()) updateData.name = name.trim();
       if (phone !== undefined) updateData.phone = phone;
       if (branch) updateData.branch = branch;
-      if (req.file) updateData.profileImage = req.file.filename;
+      if (req.file) updateData.profileImage = req.file.path; // Cloudinary returns full URL in .path
     }
 
     const updatedUser = await User.findByIdAndUpdate(

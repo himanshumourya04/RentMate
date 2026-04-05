@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { BACKEND_URL } from '../config';
+import { getPhotoUrl } from '../utils/photoUtils';
+
 
 const categories = [
   { icon: '📚', name: 'Books' },
@@ -18,9 +18,7 @@ const getCategoryIcon = (category) => {
 
 const ItemCard = ({ item, currentUserId }) => {
   const navigate = useNavigate();
-  const imageUrl = item.image
-    ? `${BACKEND_URL}/uploads/${item.image}`
-    : null;
+  const imageUrl = getPhotoUrl(item.image);
 
   const isOwner = currentUserId && item.ownerId?._id === currentUserId;
 
@@ -83,7 +81,7 @@ const ItemCard = ({ item, currentUserId }) => {
             >
               <div className="w-6 h-6 bg-gradient-to-br from-primary-400 to-accent-500 rounded-full flex items-center justify-center overflow-hidden">
                 {item.ownerId?.profileImage ? (
-                  <img src={`${BACKEND_URL}/uploads/${item.ownerId.profileImage}`} alt="" className="w-full h-full object-cover" />
+                  <img src={getPhotoUrl(item.ownerId.profileImage)} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-white text-xs font-bold">
                     {item.ownerId?.name?.[0]?.toUpperCase() || '?'}

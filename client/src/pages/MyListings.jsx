@@ -4,6 +4,8 @@ import { getMyListings, deleteItem, updateItem } from '../services/api';
 import toast from 'react-hot-toast';
 
 import { BACKEND_URL } from '../config';
+import { getPhotoUrl } from '../utils/photoUtils';
+
 const CATEGORIES = ['Electronics', 'Books', 'Furniture', 'Tools', 'Sports', 'Other'];
 
 const MyListings = () => {
@@ -63,7 +65,7 @@ const MyListings = () => {
       condition: item.condition,
     });
     setImageFile(null);
-    setPreviewImage(item.image ? `${BACKEND_URL}/uploads/${item.image}` : null);
+    setPreviewImage(getPhotoUrl(item.image));
   };
 
   const cancelEdit = () => {
@@ -165,7 +167,7 @@ const MyListings = () => {
                   <>
                     <div className="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200">
                       {item.image ? (
-                        <img src={`${BACKEND_URL}/uploads/${item.image}`} alt={item.itemName} className="w-full h-full object-cover" />
+                        <img src={getPhotoUrl(item.image)} alt={item.itemName} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-4xl">📦</div>
                       )}

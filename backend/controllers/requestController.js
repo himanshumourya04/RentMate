@@ -28,13 +28,9 @@ const createRequest = async (req, res) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 2); // 2 day expiry for user requests
 
-    // Support both Cloudinary uploaded files and local multer files.
-    // Cloudinary sets req.file.path to an https:// URL; local multer sets it to the filesystem path.
-    const BASE = process.env.BACKEND_URL || 'http://localhost:5000';
-    const isCloudinary = req.file.path && req.file.path.startsWith('http');
-    const imageData = isCloudinary
-      ? { url: req.file.path, public_id: req.file.filename }
-      : { url: `${BASE}/uploads/${req.file.filename}`, public_id: req.file.filename };
+    // Cloudinary sets req.file.path to an https:// URL
+    const imageData = { url: req.file.path, public_id: req.file.filename };
+
 
     const userBranch = req.user.branch || branch || 'N/A';
     const normalizedBranch = userBranch.toUpperCase();
@@ -74,13 +70,12 @@ const getActiveRequests = async (req, res) => {
       .populate('userId', 'name profileImage branch')
       .sort({ createdAt: -1 });
 
-    const BASE = process.env.BACKEND_URL || 'http://localhost:5000';
     const formattedRequests = requests.map(req => {
       let imageUrl = null;
       if (typeof req.image === 'string') {
-        imageUrl = req.image.startsWith('http') ? req.image : `${BASE}/uploads/${req.image}`;
+        imageUrl = req.image;
       } else if (req.image && req.image.url) {
-        imageUrl = req.image.url.startsWith('http') ? req.image.url : `${BASE}${req.image.url}`;
+        imageUrl = req.image.url;
       }
       return { ...req.toObject(), image: imageUrl };
     });
@@ -106,13 +101,12 @@ const getBanners = async (req, res) => {
       .sort({ isPinned: -1, type: 1, createdAt: -1 }) // type:1 puts 'admin' before 'user'
       .limit(10); // Limit to top 10 for the carousel
 
-    const BASE2 = process.env.BACKEND_URL || 'http://localhost:5000';
     const formattedBanners = banners.map(banner => {
       let imageUrl = null;
       if (typeof banner.image === 'string') {
-        imageUrl = banner.image.startsWith('http') ? banner.image : `${BASE2}/uploads/${banner.image}`;
+        imageUrl = banner.image;
       } else if (banner.image && banner.image.url) {
-        imageUrl = banner.image.url.startsWith('http') ? banner.image.url : `${BASE2}${banner.image.url}`;
+        imageUrl = banner.image.url;
       }
       return { ...banner.toObject(), image: imageUrl };
     });
@@ -221,10 +215,7 @@ const updateRequest = async (req, res) => {
 
     // Handle new image upload
     if (req.file) {
-      const isCloudinary = req.file.path && req.file.path.startsWith('http');
-      const imageData = isCloudinary
-        ? { url: req.file.path, public_id: req.file.filename }
-        : { url: `http://localhost:5000/uploads/${req.file.filename}`, public_id: req.file.filename };
+      const imageData = { url: req.file.path, public_id: req.file.filename };
       request.image = imageData;
     }
 

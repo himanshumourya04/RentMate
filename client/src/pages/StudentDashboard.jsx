@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getStudentBookings, getMyListings, getOwnerBookings, acceptPayment } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
+import { getPhotoUrl } from '../utils/photoUtils';
 import toast from 'react-hot-toast';
 
 import { BACKEND_URL } from '../config';
@@ -148,7 +150,7 @@ const StudentDashboard = () => {
                   <div key={b._id} className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
                     <div className="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0 overflow-hidden text-lg">
                       {b.itemId?.image ? (
-                        <img src={`${BACKEND_URL}/uploads/${b.itemId.image}`} alt="" className="w-full h-full object-cover" />
+                        <img src={getPhotoUrl(b.itemId.image)} alt="" className="w-full h-full object-cover" />
                       ) : <span>📦</span>}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -187,7 +189,7 @@ const StudentDashboard = () => {
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center flex-shrink-0 overflow-hidden text-lg">
                         {b.itemId?.image ? (
-                          <img src={`${BACKEND_URL}/uploads/${b.itemId.image}`} alt="" className="w-full h-full object-cover" />
+                          <img src={getPhotoUrl(b.itemId.image)} alt="" className="w-full h-full object-cover" />
                         ) : <span>📦</span>}
                       </div>
                       <div className="flex-1 min-w-0">

@@ -4,6 +4,8 @@ import { updateProfile } from '../services/api';
 import toast from 'react-hot-toast';
 
 import { BACKEND_URL } from '../config';
+import { getPhotoUrl } from '../utils/photoUtils';
+
 const BRANCHES = ['CSE', 'Mechanical', 'Electrical', 'Civil', 'IT'];
 
 const MANAGEMENT_READONLY_FIELDS = [
@@ -27,7 +29,7 @@ const ProfilePage = () => {
   });
   const [imageFile, setImageFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(
-    user?.profileImage ? `${BACKEND_URL}/uploads/${user.profileImage}` : null
+    getPhotoUrl(user?.profileImage)
   );
 
   const fileInputRef = useRef(null);
@@ -218,13 +220,13 @@ const ProfilePage = () => {
                   {user.selfieImage && (
                     <div>
                       <span className="block text-sm font-medium text-slate-700 mb-2">Selfie Image</span>
-                      <img src={`${BACKEND_URL}/uploads/${user.selfieImage}`} alt="Selfie" className="w-full h-48 object-cover rounded-xl border border-slate-200" />
+                      <img src={getPhotoUrl(user.selfieImage)} alt="Selfie" className="w-full h-48 object-cover rounded-xl border border-slate-200" />
                     </div>
                   )}
                   {user.collegeIdImage && (
                     <div>
                       <span className="block text-sm font-medium text-slate-700 mb-2">College ID</span>
-                      <img src={`${BACKEND_URL}/uploads/${user.collegeIdImage}`} alt="College ID" className="w-full h-48 object-cover rounded-xl border border-slate-200" />
+                      <img src={getPhotoUrl(user.collegeIdImage)} alt="College ID" className="w-full h-48 object-cover rounded-xl border border-slate-200" />
                     </div>
                   )}
                 </div>
@@ -267,7 +269,7 @@ const ProfilePage = () => {
                   onClick={() => {
                     setIsEditing(false);
                     setForm({ name: user.name, phone: user.phone || '', branch: user.branch || '' });
-                    setPreviewImage(user.profileImage ? `${BACKEND_URL}/uploads/${user.profileImage}` : null);
+                    setPreviewImage(getPhotoUrl(user.profileImage));
                     setImageFile(null);
                   }}
                   className="btn-secondary"
